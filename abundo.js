@@ -1,0 +1,77 @@
+var appath = "./";
+require('dotenv').config({path: appath + '.env'});
+
+const nodeMailer = require('nodemailer');
+let transporter = nodeMailer.createTransport({
+    host: 'send.one.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.USERNAME,
+        pass: process.env.PASSWORD
+    }
+});
+let mailOptions = {
+    from: '"No Reply" <noreply@tlcgolfit.se>', // sender address
+    to: "thomas.lind@tlcgolfit.se", // list of receivers
+    subject: "Abundo", // Subject line
+    text: "", // plain text body
+    html: "" // html body
+};
+
+const axios = require('axios');
+
+//var mysql = require('mysql')
+
+
+function addZero(i) {
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+
+function checkabundo(abundoendpoint) {
+	axios.get(abundoendpoint)
+		.then(abundores => {
+			for (var key in abundores.data.events) {
+                var currentdate = new Date();
+                currentdate.setTime(currentdate.getTime()-8*60*60*1000);
+                var updatedate = new Date(abundores.data.events[key].updated_at);
+                if(updatedate > currentdate){
+                    console.log("Nytt event");
+                    console.log(abundores.data.events[key].name);
+                    console.log(updatedate);
+                    mailOptions.text = abundores.data.events[key].name;
+                    mailOptions.html = "<p>" + abundores.data.events[key].name + "</p>";
+                    transporter.sendMail(mailOptions, (error, info) => {
+                        if (error) {
+                            return console.log(error);
+                        }
+                        console.log('Message %s sent: %s', info.messageId, info.response);
+                        res.render('index');
+                    });
+                }
+			}
+		})
+		.catch(error => {
+			console.log("GoogleError: " + error);
+		});
+}
+
+//Hämta eventuella argument (node abundo.js 2)
+process.argv.forEach(function (val, index, array) {
+	if(index == 2) {
+	}
+});
+
+var abundoendpoint = "https://abundolive.se/api/v1/city_events/59a1f5c0a51e4120d6f8dc1b";
+
+var fs = require('fs');
+
+currentdate = new Date();
+fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo started. \n", function (err) {
+	if (err) throw err;
+});
+
+checkabundo(abundoendpoint);
