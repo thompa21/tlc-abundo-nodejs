@@ -36,7 +36,7 @@ function checkabundo(abundoendpoint) {
 		.then(abundores => {
 			for (var key in abundores.data.events) {
                 var currentdate = new Date();
-                currentdate.setTime(currentdate.getTime()-8*60*60*1000);
+                currentdate.setTime(currentdate.getTime()-24*60*60*1000);
                 var updatedate = new Date(abundores.data.events[key].updated_at);
                 if(updatedate > currentdate){
                     console.log("Nytt event");
@@ -44,13 +44,13 @@ function checkabundo(abundoendpoint) {
                     console.log(updatedate);
                     mailOptions.text = abundores.data.events[key].name;
                     mailOptions.html = "<p>" + abundores.data.events[key].name + "</p>";
-                    transporter.sendMail(mailOptions, (error, info) => {
+                    /*transporter.sendMail(mailOptions, (error, info) => {
                         if (error) {
                             return console.log(error);
                         }
                         console.log('Message %s sent: %s', info.messageId, info.response);
                         res.render('index');
-                    });
+                    });*/
                 }
 			}
 		})
