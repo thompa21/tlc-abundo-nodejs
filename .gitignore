@@ -8,3 +8,7 @@
 
 #logs
 *.log
+
+#jsondata
+events.json
+abundo.json

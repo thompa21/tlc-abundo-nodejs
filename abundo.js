@@ -45,10 +45,6 @@ var con = mysql.createConnection({
   });
 
 */
-
-
-
-
 function addZero(i) {
     if (i < 10) {
         i = "0" + i;
@@ -65,41 +61,49 @@ function checkabundo(abundoendpoint) {
                 var currentdate = new Date();
                 currentdate.setTime(currentdate.getTime()-8*60*60*1000);
                 var updatedate = new Date(abundores.data.events[key].updated_at);
+                //Kolla om det finns events med nyare datum än 8 timmar tillbaks
                 if(updatedate > currentdate){
-                    console.log("Nytt event");
-                    //console.log(abundores.data.events[key].name);
-                    //console.log(updatedate);
+                    //Läs in id som redan har fått reminders skickade
                     var remindedevents;
                     filedata = fs.readFileSync('abundo.json', 'utf8');
-                    remindedevents = JSON.parse(filedata); //now it an object
-                    //console.log ("remindedevents: " + remindedevents.remindedevents);
+                    remindedevents = JSON.parse(filedata);
                     for (var jsonindex in remindedevents.remindedevents) {
-                        //console.log (remindedevents.remindedevents[jsonindex].id + " == "  + abundores.data.events[key].id);
+                        //om reminder redan skickats
                         if (remindedevents.remindedevents[jsonindex].id == abundores.data.events[key].id) {
                             send = false;
-                            console.log("ID Match!");
                         }
                     }
+                    //Skicka endast om reminder in redan skickats
                     if (send) {
-                        console.log("reminder sent!");
-                        remindedevents.remindedevents.push({id: abundores.data.events[key].id, remindersent:true}); //add some data
-                        json = JSON.stringify(remindedevents); //convert it back to json
-                        fs.writeFileSync('abundo.json', json, 'utf8'); // write it back 
+                        //Spara att det skickats reminder på detta ID
+                        remindedevents.remindedevents.push({id: abundores.data.events[key].id, remindersent:true});
+                        json = JSON.stringify(remindedevents);
+                        fs.writeFileSync('abundo.json', json, 'utf8');
+                        //Skicka ut reminder(mail) 
                         mailOptions.text = abundores.data.events[key].name;
-                        mailOptions.html = "<p>" + abundores.data.events[key].name + "</p>";
-                        /*transporter.sendMail(mailOptions, (error, info) => {
+                        mailOptions.html = "<a href='https://abundolive.se/event/stockholm/" + abundores.data.events[key].slug + "'>" + abundores.data.events[key].name + "</a>" + 
+                        "<img src='" + "https://cdn.abundolive.se/download/" + abundores.data.events[key].pictures[0] + "-size-500'>";
+                        transporter.sendMail(mailOptions, (error, info) => {
                             if (error) {
-                                return console.log(error);
+                                currentdate = new Date();
+                                fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, error: " + error + "\n", function (err) {
+                                    if (err) throw err;
+                                });
                             }
-                            console.log('Message %s sent: %s', info.messageId, info.response);
-                            res.render('index');
-                        });*/
+                            currentdate = new Date();
+                            fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, message sent\n", function (err) {
+                                if (err) throw err;
+                            });
+                        });
                     }
                 }
 			}
 		})
 		.catch(error => {
-			console.log("GoogleError: " + error);
+			currentdate = new Date();
+            fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, error: " + error + "\n", function (err) {
+                if (err) throw err;
+            });
 		});
 }
 
@@ -117,7 +121,7 @@ fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + add
 });
 
 
-cron.schedule('*/5 * * * * *', () => {
+cron.schedule('*/30 * * * * *', () => {
     console.log('running a task every 30 sec');
     checkabundo(abundoendpoint);
   });
