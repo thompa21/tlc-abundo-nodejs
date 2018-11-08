@@ -122,6 +122,6 @@ fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + add
 
 
 cron.schedule('*/30 * * * * *', () => {
-    console.log('running a task every 30 sec');
+    //console.log('running a task every 30 sec');
     checkabundo(abundoendpoint);
   });
