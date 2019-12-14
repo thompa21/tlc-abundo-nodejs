@@ -55,7 +55,6 @@ function addZero(i) {
 function checkabundo(abundoendpoint) {
 	axios.get(abundoendpoint)
 		.then(abundores => {
-            
 			for (var key in abundores.data.events) {
                 var send = true;
                 var currentdate = new Date();
