@@ -6,8 +6,8 @@ var fs = require('fs');
 const nodeMailer = require('nodemailer');
 let transporter = nodeMailer.createTransport({
     host: 'send.one.com',
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD
@@ -73,7 +73,7 @@ function checkabundo(abundoendpoint) {
                             send = false;
                         }
                     }
-                    //Skicka endast om reminder in redan skickats
+                    //Skicka endast om reminder inte redan skickats
                     if (send) {
                         //Spara att det skickats reminder på detta ID
                         remindedevents.remindedevents.push({id: abundores.data.events[key].id, remindersent:true});
@@ -83,18 +83,22 @@ function checkabundo(abundoendpoint) {
                         mailOptions.text = abundores.data.events[key].name;
                         mailOptions.html = "<a href='https://abundolive.se/event/stockholm/" + abundores.data.events[key].slug + "'>" + abundores.data.events[key].name + "</a>" + 
                         "<img src='" + "https://cdn.abundolive.se/download/" + abundores.data.events[key].pictures[0] + "-size-500'>";
+                        //console.log(mailOptions.text);
+                        
                         transporter.sendMail(mailOptions, (error, info) => {
                             if (error) {
                                 currentdate = new Date();
                                 fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, error: " + error + "\n", function (err) {
                                     if (err) throw err;
                                 });
+                            } else {
+                                currentdate = new Date();
+                                fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, message sent\n", function (err) {
+                                    if (err) throw err;
+                                });
                             }
-                            currentdate = new Date();
-                            fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, message sent\n", function (err) {
-                                if (err) throw err;
-                            });
                         });
+                    
                     }
                 }
 			}
@@ -113,15 +117,15 @@ process.argv.forEach(function (val, index, array) {
 	}
 });
 
-var abundoendpoint = "https://abundolive.se/api/v1/city_events/59a1f5c0a51e4120d6f8dc1b";
-
+var abundoendpoint = "https://abundolive.se/api/v1/open_events/city/59a1f5c0a51e4120d6f8dc1b";
 currentdate = new Date();
-fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo started. \n", function (err) {
+fs.appendFile(appath + 'abundo.log', addZero(currentdate.getFullYear())  + "-" + addZero(currentdate.getMonth() + 1)  + "-" + addZero(currentdate.getDate()) + " " + addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo started. \n", function (err) {
 	if (err) throw err;
 });
 
 
 cron.schedule('*/30 * * * * *', () => {
-    console.log('running a task every 30 sec');
+    currentdate = new Date();
+    console.log(addZero(currentdate.getFullYear())  + "-" + addZero(currentdate.getMonth() + 1)  + "-" + addZero(currentdate.getDate()) + " " + addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + ' running a task every 30 sec');
     checkabundo(abundoendpoint);
-  });
+});
