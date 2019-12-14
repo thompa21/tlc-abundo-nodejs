@@ -8,6 +8,8 @@ let transporter = nodeMailer.createTransport({
     host: 'send.one.com',
     port: 587,
     secure: false,
+    //port: 465,
+    //secure: true,
     auth: {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD
