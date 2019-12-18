@@ -84,7 +84,6 @@ function checkabundo(abundoendpoint) {
                         mailOptions.text = abundores.data.events[key].name;
                         mailOptions.html = "<a href='https://abundolive.se/event/stockholm/" + abundores.data.events[key].slug + "'>" + abundores.data.events[key].name + "</a>" + 
                         "<img src='" + "https://cdn.abundolive.se/download/" + abundores.data.events[key].pictures[0] + "-size-500'>";
-                        //console.log(mailOptions.text);
                         
                         transporter.sendMail(mailOptions, (error, info) => {
                             if (error) {
