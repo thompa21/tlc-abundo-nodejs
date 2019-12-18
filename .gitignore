@@ -1,5 +1,8 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+events.json
+abundo.json
+
 # dependencies
 /node_modules
 
@@ -9,6 +12,3 @@
 #logs
 *.log
 
-#jsondata
-events.json
-abundo.json
