@@ -96,6 +96,7 @@ function checkabundo(abundoendpoint) {
                                 fs.appendFile(appath + 'abundo.log', addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + " Abundo, message sent\n", function (err) {
                                     if (err) throw err;
                                 });
+                                console.log(addZero(currentdate.getFullYear())  + "-" + addZero(currentdate.getMonth() + 1)  + "-" + addZero(currentdate.getDate()) + " " + addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + ' mail sent');
                             }
                         });
                     
@@ -126,6 +127,6 @@ fs.appendFile(appath + 'abundo.log', addZero(currentdate.getFullYear())  + "-" +
 
 cron.schedule('*/30 * * * * *', () => {
     currentdate = new Date();
-    console.log(addZero(currentdate.getFullYear())  + "-" + addZero(currentdate.getMonth() + 1)  + "-" + addZero(currentdate.getDate()) + " " + addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + ' running a task every 30 sec');
+    //console.log(addZero(currentdate.getFullYear())  + "-" + addZero(currentdate.getMonth() + 1)  + "-" + addZero(currentdate.getDate()) + " " + addZero(currentdate.getHours()) + ":" + addZero(currentdate.getMinutes()) + ":" + addZero(currentdate.getSeconds()) + ' running a task every 30 sec');
     checkabundo(abundoendpoint);
 });
